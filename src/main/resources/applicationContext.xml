@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:task="http://www.springframework.org/schema/task"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                        http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
+                        http://www.springframework.org/schema/context
+                        http://www.springframework.org/schema/context/spring-context-4.2.xsd
+                        http://www.springframework.org/schema/aop
+                        http://www.springframework.org/schema/aop/spring-aop-4.2.xsd
+                        http://www.springframework.org/schema/task
+                        http://www.springframework.org/schema/task/spring-task-4.2.xsd
+                        http://www.springframework.org/schema/tx
+                        http://www.springframework.org/schema/tx/spring-tx-4.2.xsd">
+
+    <!-- 容器自动扫描IOC组件  -->
+    <context:component-scan base-package="com.yucong">
+    	<context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+    </context:component-scan>
+
+    <!-- 引入配置文件 -->
+    <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="locations">
+        	<list>
+        		<value>classpath:dbconfig.properties</value>
+        		<value>classpath:redis.properties</value>
+        	</list>
+        </property>
+    </bean>
+    <!-- 数据源配置,使用应用内的DBCP数据库连接池     -->
+    <bean id="dataSource" class="org.apache.commons.dbcp2.BasicDataSource">
+        <property name="driverClassName" value="${jdbc.driver}"></property>
+        <property name="url" value="${jdbc.url}"></property>
+        <property name="username" value="${jdbc.username}"></property>
+        <property name="password" value="${jdbc.password}"></property>
+    </bean>
+
+    <!-- spring和MyBatis完美整合，不需要mybatis的配置映射文件 -->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <!-- 指定数据源 -->
+        <property name="dataSource" ref="dataSource"/>
+        <!-- 指定配置文件 -->
+        <property name="configLocation" value="classpath:mybatis-config.xml"/>
+        <!-- sql映射文件路径 -->
+        <property name="mapperLocations" value="classpath:mapper/*.xml"/>
+        <!-- 别名 -->
+        <property name="typeAliasesPackage" value="com.yucong.model" />
+    </bean>
+    <!-- DAO接口所在包名，Spring会自动查找其下的类 -->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+    	<!-- 指定要自动扫描接口的基础包，实现接口 -->
+        <property name="basePackage" value="com.yucong.mapper" />
+        <!--指定会话工厂，如果当前上下文中只定义了一个则该属性可省去 -->
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />
+    </bean>
+
+    <!-- 指明使用注解的方式来管理事务 -->
+    <tx:annotation-driven transaction-manager="transactionManager"/>
+    <!-- 配置事务管理器，引入数据源 -->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+        <qualifier value="transactionManager" />
+    </bean>
+    
+    
+    <!-- 使用注解方式的异步线程 -->
+    <task:annotation-driven />
+    <!-- 配置线程池属性，可以配置多个时ID要不同 -->
+    <task:executor id="transactionalExecutor" pool-size="10-20" queue-capacity="20" keep-alive="60"/>
+    <task:executor id="asyncExecutor" pool-size="10-20" queue-capacity="20" keep-alive="60"/>
+    
+    
+    <!-- 开启cglib代理，暴露代理对象 -->
+    <!-- proxy-target-class属性，默认为false，表示使用jdk动态代理织入增强，为true时，表示使用CGLib动态代理技术织入增强 -->
+    <!-- service中的a方法调用b方法无法实施切面中的增强，expose-proxy="true"是暴露代理对象，AopContext.currentProxy()获取当前service对象的动态代理 -->
+    <!-- @EnableAspectJAutoProxy(proxyTargetClass = true, exposeProxy = true) 在对应的service加上此注解可代替以下配置 -->
+    <aop:aspectj-autoproxy proxy-target-class="true" expose-proxy="true"/>
+
+</beans>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yucong.mapper.UserMapper">
+    <resultMap id="userMap" type="com.yucong.model.User">
+        <id property="id" column="id" />
+        <result property="name" column="name" />
+        <result property="age" column="age" />
+    </resultMap>
+
+    <select id="getAllUsers" resultMap="userMap">
+        SELECT * FROM user
+    </select>
+    
+    <select id="selectUserById" resultMap="userMap">
+    	select * from user where id = #{id}
+    </select>
+    
+    <update id="updateAgeById">
+    	UPDATE USER SET age = 110 WHERE id = #{id};
+    </update>
+    
+    <select id="selectUsersByCondition">
+    	select * from user where age > #{age}
+    </select>
+    
+    <insert id="insertBatch" parameterType="user">
+    	INSERT INTO USER (id,name,age) VALUES(#{id},#{name},#{age}); 
+    </insert>
+
+
+</mapper>

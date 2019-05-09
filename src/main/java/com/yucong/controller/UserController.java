@@ -8,13 +8,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.yucong.service.UserService;
 
-
 @Controller
 @RequestMapping("/user")
 public class UserController {
 
-    @Autowired
-    private UserService userService;
+	@Autowired
+	private UserService userService;
 
 	@RequestMapping("/test1")
 	public void test1(HttpServletRequest request) {
@@ -62,6 +61,7 @@ public class UserController {
 	@RequestMapping("/insertBatch")
 	public void insertBatch(HttpServletRequest request) {
 		userService.insertBatch();
+		userService.insertBatch2();
 	}
 
 }

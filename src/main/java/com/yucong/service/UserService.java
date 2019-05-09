@@ -21,8 +21,7 @@ public class UserService {
 
 	private static Logger logger = LoggerFactory.getLogger(UserService.class);
 
-
-    @Autowired
+	@Autowired
 	private UserMapper userMapper;
 
 	/**
@@ -126,16 +125,32 @@ public class UserService {
 		SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH, false);
 		UserMapper mapper = sqlSession.getMapper(UserMapper.class);
 		User user = null;
-		for (int i = 1; i <= 20; i++) {
+		for (int i = 1; i <= 12; i++) {
 			user = new User();
 			user.setId(i);
 			user.setName("Tom-" + i);
 			user.setAge(i);
 			Integer count = mapper.insertBatch(user);
-			if (i % 10 == 0) {
+			if (i % 5 == 0) {
 				sqlSession.commit();
 				System.out.println(count);
 			}
+		}
+		sqlSession.commit();
+	}
+
+	/*
+	 * 批量插入
+	 */
+	public void insertBatch2() {
+		User user = null;
+		for (int i = 15; i <= 18; i++) {
+			user = new User();
+			user.setId(i);
+			user.setName("Tom-" + i);
+			user.setAge(i);
+			Integer one = userMapper.insertOneByOne(user);
+			System.out.println(one);
 		}
 	}
 }

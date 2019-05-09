@@ -16,4 +16,6 @@ public interface UserMapper {
 	List<User> selectUsersByCondition(@Param("age") int age);
 
 	Integer insertBatch(User user);
+	
+	Integer insertOneByOne(User user);
 }

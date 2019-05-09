@@ -26,6 +26,9 @@
     <insert id="insertBatch" parameterType="user">
     	INSERT INTO USER (id,name,age) VALUES(#{id},#{name},#{age}); 
     </insert>
-
+    
+    <insert id="insertOneByOne" parameterType="user">
+    	INSERT INTO USER (id,name,age) VALUES(#{id},#{name},#{age}); 
+    </insert>
 
 </mapper>
